@@ -1,3 +1,4 @@
+import 'package:dawgs/ErrorPage.dart';
 import 'package:dawgs/MainUserProfile.dart';
 import 'package:dawgs/main.dart';
 import 'package:flutter/material.dart';
@@ -17,13 +18,21 @@ class LoginPage extends StatelessWidget {
         String? idToken = googleSignInAuthentication.idToken;
         print(idToken);
         String? userId = await sendRequestToServer(idToken);
-        print(userId);
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => MainUserProfile(userId: userId),
-          ),
-        );
+        if (userId == null) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ErrorPage(),
+            ),
+          );
+        } else {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MainUserProfile(userId: userId),
+            ),
+          );
+        }
       }
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(

@@ -151,6 +151,31 @@ Discussion getDiscussionFromResponse(http.Response response) {
   }
 }
 
+Future<bool> checkDiscussionInvalid(int id) async {
+  try {
+    final response = await http.get(
+      Uri.parse(
+          'https://team-dawgs.dokku.cse.lehigh.edu/discussions/$id/checkInvalid'),
+    );
+    if (response.statusCode == 200) {
+      // Parse the response JSON
+      Map<String, dynamic> jsonData = jsonDecode(response.body);
+      // Extract the result value
+      bool result = jsonData['mData'];
+      return result;
+    } else {
+      // Handle error response
+      print(
+          'Failed to check discussion invalid status. Status code: ${response.statusCode}');
+      return false; // Or throw an exception
+    }
+  } catch (error) {
+    // Handle network or other errors
+    print('Error checking discussion invalid status: $error');
+    return false; // Or throw an exception
+  }
+}
+
 /// Fetches discussions from the server.
 ///
 /// Returns a list of [Discussion] objects fetched from the server.
@@ -173,6 +198,7 @@ Future<List<Discussion>> fetchDiscussions() async {
       String mMessage = item.containsKey('mContent')
           ? item['mContent']
           : 'No Message'; // Assuming mMessage is another field you want to parse
+      bool inValid = item['inValid'];
       print("mTitle: $mTitle mContent: $mMessage");
     });
 

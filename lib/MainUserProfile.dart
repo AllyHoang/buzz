@@ -31,7 +31,7 @@ class _MainUserProfileState extends State<MainUserProfile> {
     try {
       await _googleSignIn.signOut();
       print('User signed out.');
-      Navigator.push(
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (context) => LoginPage(),

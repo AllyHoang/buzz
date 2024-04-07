@@ -37,7 +37,7 @@ class Discussion {
       title: json['mTitle'] as String? ?? '',
       userId: json['userId'] as String? ?? '',
       message: json['mContent'] as String? ?? '',
-      inValid: json['invalid'] as bool? ?? false, // Set default value if null
+      inValid: json['inValid'] as bool? ?? true, // Set default value if null
     );
   }
 }

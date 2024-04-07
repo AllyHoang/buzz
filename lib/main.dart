@@ -17,11 +17,11 @@ import 'login_page.dart';
 final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp()); // Pass the HTTP client to MyApp
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key}) : super(key: key); // Constructor
 
   // This widget is the root of your application.
   @override
@@ -96,19 +96,16 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Column(
         children: [
-          // Google Sign-Out Button
           Expanded(
             child: FutureBuilder<List<Discussion>>(
               future: _future_list_discussions,
               builder: (BuildContext context,
                   AsyncSnapshot<List<Discussion>> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  // Display a loading indicator while waiting for data
                   return Center(
                     child: CircularProgressIndicator(),
                   );
                 } else if (snapshot.hasError) {
-                  // Display an error message if fetching fails
                   return Center(
                     child: Text(
                       'Error: ${snapshot.error}',
@@ -116,11 +113,25 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   );
                 } else if (snapshot.hasData) {
-                  // If data is available, build the ListView with ListTile widgets
+                  // Filter out invalid discussions
+                  final validDiscussions = snapshot.data!
+                      .where((discussion) => (discussion.inValid == false))
+                      .toList();
+
+                  if (validDiscussions.isEmpty) {
+                    // No valid discussions to display
+                    return Center(
+                      child: Text(
+                        'No valid discussions available',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    );
+                  }
+
                   return ListView.builder(
-                    itemCount: snapshot.data!.length,
+                    itemCount: validDiscussions.length,
                     itemBuilder: (context, index) {
-                      final discussion = snapshot.data![index];
+                      final discussion = validDiscussions[index];
                       return Card(
                         child: Padding(
                           padding: const EdgeInsets.all(16.0),
@@ -129,30 +140,11 @@ class _MyHomePageState extends State<MyHomePage> {
                             children: <Widget>[
                               InkWell(
                                 onTap: () {
-                                  if (widget.userId == discussion.userId) {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => MainUserProfile(
-                                            userId: widget.userId),
-                                      ),
-                                    );
-                                  } else {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            LightUserProfilePage(
-                                                userId: discussion.userId),
-                                      ),
-                                    );
-                                  }
-                                  // Add functionality for avatar icon
+                                  // Navigate to user profile page
                                 },
                                 child: Row(
                                   children: [
                                     CircleAvatar(
-                                      // Add a grey avatar icon
                                       backgroundColor: Colors.grey,
                                       child: Icon(
                                         Icons.account_circle,
@@ -187,40 +179,24 @@ class _MyHomePageState extends State<MyHomePage> {
                                   IconButton(
                                     onPressed: () async {
                                       // Add functionality for upvote icon
-                                      upVote(discussion.id);
-                                      _checkBoolStatus(discussion.id);
                                     },
                                     icon: Icon(
                                       Icons.thumb_up,
                                       size: 20,
-                                      color: _getUpvoteColor(
-                                          discussion.id), // Colorless
                                     ),
                                   ),
                                   IconButton(
                                     onPressed: () {
                                       // Add functionality for downvote icon
-                                      downVote(discussion.id);
-                                      _checkBoolStatus(discussion.id);
                                     },
                                     icon: Icon(
                                       Icons.thumb_down,
                                       size: 20,
-                                      color: _getDownvoteColor(
-                                          discussion.id), // Colorless
                                     ),
                                   ),
                                   IconButton(
                                     onPressed: () {
                                       // Add functionality for comment icon
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => CommentPage(
-                                              discussionId: discussion.id,
-                                              userId: widget.userId),
-                                        ),
-                                      );
                                     },
                                     icon: Icon(
                                       Icons.comment,
