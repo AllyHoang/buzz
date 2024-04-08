@@ -117,7 +117,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   final validDiscussions = snapshot.data!
                       .where((discussion) => (discussion.inValid == false))
                       .toList();
-
+                  print(validDiscussions);
                   if (validDiscussions.isEmpty) {
                     // No valid discussions to display
                     return Center(
@@ -127,7 +127,6 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                     );
                   }
-
                   return ListView.builder(
                     itemCount: validDiscussions.length,
                     itemBuilder: (context, index) {
@@ -140,11 +139,30 @@ class _MyHomePageState extends State<MyHomePage> {
                             children: <Widget>[
                               InkWell(
                                 onTap: () {
-                                  // Navigate to user profile page
+                                  if (widget.userId == discussion.userId) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => MainUserProfile(
+                                            userId: widget.userId),
+                                      ),
+                                    );
+                                  } else {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            LightUserProfilePage(
+                                                userId: discussion.userId),
+                                      ),
+                                    );
+                                  }
+                                  // Add functionality for avatar icon
                                 },
                                 child: Row(
                                   children: [
                                     CircleAvatar(
+                                      // Add a grey avatar icon
                                       backgroundColor: Colors.grey,
                                       child: Icon(
                                         Icons.account_circle,
@@ -179,24 +197,40 @@ class _MyHomePageState extends State<MyHomePage> {
                                   IconButton(
                                     onPressed: () async {
                                       // Add functionality for upvote icon
+                                      upVote(discussion.id);
+                                      _checkBoolStatus(discussion.id);
                                     },
                                     icon: Icon(
                                       Icons.thumb_up,
                                       size: 20,
+                                      color: _getUpvoteColor(
+                                          discussion.id), // Colorless
                                     ),
                                   ),
                                   IconButton(
                                     onPressed: () {
                                       // Add functionality for downvote icon
+                                      downVote(discussion.id);
+                                      _checkBoolStatus(discussion.id);
                                     },
                                     icon: Icon(
                                       Icons.thumb_down,
                                       size: 20,
+                                      color: _getDownvoteColor(
+                                          discussion.id), // Colorless
                                     ),
                                   ),
                                   IconButton(
                                     onPressed: () {
                                       // Add functionality for comment icon
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => CommentPage(
+                                              discussionId: discussion.id,
+                                              userId: widget.userId),
+                                        ),
+                                      );
                                     },
                                     icon: Icon(
                                       Icons.comment,
